@@ -38,8 +38,8 @@ function passwordProtected(req, res, next){
 
 app.use(passwordProtected)
 
-app.get("/", function(req, res) {
-  db.collection("items").find().toArray(function(err, items) {
+app.get("/", asynce function(req, res) {
+  const items = await db.collection("items").find().toArray()
     res.send(`<!DOCTYPE html>
   <html>
   <head>
@@ -75,14 +75,13 @@ app.get("/", function(req, res) {
   </body>
   </html>`)
   })
-})
 
 app.post("/create-item", async function(req, res){
   let safeText  = sanitizeHTML(req.body.text, {allowedTags: [], allowedAttributes: {}})
   db.collection("items").insertOne({text: safeText}, function(err, info){
     res.json({_id: info.insertedId, text: safeText})
   })
-})
+
 
 app.post("/update-item", async function(req, res){
   let safeText  = sanitizeHTML(req.body.text, {allowedTags: [], allowedAttributes: {}})
