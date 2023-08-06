@@ -38,7 +38,7 @@ function passwordProtected(req, res, next){
 
 app.use(passwordProtected)
 
-app.get("/", asynce function(req, res) {
+app.get("/", async function(req, res) {
   const items = await db.collection("items").find().toArray()
     res.send(`<!DOCTYPE html>
   <html>
