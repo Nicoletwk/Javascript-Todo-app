@@ -1,10 +1,9 @@
-const { ObjectID } = require('bson')
 let express = require('express')
 let {MongoClient, ObjectId} = require('mongodb')
 let sanitizeHTML = require("sanitize-html")
 
 let app = express()
-let db 
+let db
 
 let port = process.env.PORT
 if(port == null || port == ""){
@@ -34,7 +33,7 @@ function passwordProtected(req, res, next){
   } else {
       res.status(401).send("Authentication required")
   }
-  
+
 }
 
 app.use(passwordProtected)
@@ -42,7 +41,7 @@ app.use(passwordProtected)
 app.get("/", function(req, res) {
   db.collection("items").find().toArray(function(err, items) {
     res.send(`<!DOCTYPE html>
-  <html> 
+  <html>
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -52,7 +51,7 @@ app.get("/", function(req, res) {
   <body>
     <div class="container">
       <h1 class="display-4 text-center py-1">To-Do App</h1>
-      
+
       <div class="jumbotron p-3 shadow-sm">
         <form id="create-form" action="/create-item" method = "POST">
           <div class="d-flex align-items-center">
@@ -61,14 +60,14 @@ app.get("/", function(req, res) {
           </div>
         </form>
       </div>
-  
+
       <ul id="item-list" class="list-group pb-5">
-        
+
       </ul>
-      
+
     </div>
-    
-    <script> 
+
+    <script>
     let items = ${JSON.stringify(items)}
     </script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
@@ -78,22 +77,22 @@ app.get("/", function(req, res) {
   })
 })
 
-app.post("/create-item", function(req, res){
+app.post("/create-item", async function(req, res){
   let safeText  = sanitizeHTML(req.body.text, {allowedTags: [], allowedAttributes: {}})
   db.collection("items").insertOne({text: safeText}, function(err, info){
-    res.json({_id: info.insertedId, text: safeText}) 
+    res.json({_id: info.insertedId, text: safeText})
   })
 })
 
-app.post("/update-item", function(req, res){
+app.post("/update-item", async function(req, res){
   let safeText  = sanitizeHTML(req.body.text, {allowedTags: [], allowedAttributes: {}})
   db.collection("items").findOneAndUpdate({_id: new ObjectId(req.body.id)}, {$set: {text: safeText}}, function(){
     res.send("Success")
   })
 })
 
-app.post("/delete-item", function(req, res){
-  db.collection("items").deleteOne({_id: new ObjectId(req.body.id)}, function(){
+app.post("/delete-item", async function(req, res){
+  db.collection("items").deleteOne({_id: new ObjectId(req.body.id) })
     res.send("Item deleted")
   })
 })
